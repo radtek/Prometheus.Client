@@ -41,7 +41,7 @@ namespace Prometheus.Client
             }
 
             _sum.Add(val);
-            TimestampIfRequired(timestamp);
+            TrackObservation(timestamp);
         }
 
         protected internal override void Collect(IMetricsWriter writer)

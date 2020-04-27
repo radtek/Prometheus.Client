@@ -12,6 +12,7 @@ namespace Prometheus.Client
     {
         protected readonly TConfig Configuration;
         private readonly bool _includeTimestamp;
+        private readonly Func<DateTimeOffset> _currentTimeProvider;
         private long _timestamp;
         private bool _hasObservations;
 
@@ -22,8 +23,8 @@ namespace Prometheus.Client
             if (currentTimeProvider == null)
                 currentTimeProvider = () => DateTimeOffset.UtcNow;
 
-            CurrentTimeProvider = currentTimeProvider;
             Configuration = config;
+            _currentTimeProvider = currentTimeProvider;
             _includeTimestamp = config.IncludeTimestamp;
 
             if (labelValues != null && labelValues.Count > 0)
@@ -49,17 +50,17 @@ namespace Prometheus.Client
 
         protected internal abstract void Collect(IMetricsWriter writer);
 
-        protected Func<DateTimeOffset> CurrentTimeProvider { get; }
+        protected DateTimeOffset GetUtcNow() => _currentTimeProvider();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void TimestampIfRequired(long? timestamp = null)
+        protected void TrackObservation(long? timestamp = null)
         {
             Volatile.Write(ref _hasObservations, true);
 
             if (!_includeTimestamp)
                 return;
 
-            var now = CurrentTimeProvider().ToUnixTimeMilliseconds();
+            var now = GetUtcNow().ToUnixTimeMilliseconds();
 
             if (!timestamp.HasValue)
             {

@@ -8,6 +8,8 @@ namespace Prometheus.Client.Benchmarks.Comparison
         private MetricFactory _factory;
         private Their.Prometheus.MetricFactory _theirMetricFactory;
 
+        protected const string HelpText = "arbitrary help message for metric, not relevant for benchmarking";
+
         protected ComparisonBenchmarkBase()
         {
             ResetFactories();
